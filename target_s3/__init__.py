@@ -52,9 +52,15 @@ def persist_lines(config, lines):
         )
         global state_count
         state_count = state_count + len(records)
-        emit_state({'count' : state_count})
+        emit_state({'count' : state_count, 'stream': stream})
 
-    data_to_be_upload = []
+    def offload_buffers(buffer_dict, max_size, bucket):
+        for stream, records in buffer_dict.items():
+            if len(records) >= max_size and len(records) > 0:
+                put_records(records, stream, bucket)
+                data_to_be_upload[stream] = []
+
+    data_to_be_upload = {}
 
     buffer_size = config.get('buffer_size', 1000)
     bucket_name = config['bucket_name']
@@ -90,18 +96,18 @@ def persist_lines(config, lines):
             raw_data = json.dumps(o['record'])
             # for the moment append the raw record to a list to be put in s3 in a
             # batch upload at the end
-            data_to_be_upload.append(raw_data)
+            if data_to_be_upload.get(stream) is None:
+                data_to_be_upload[stream] = []
+            data_to_be_upload[stream].append(raw_data)
+
             # if we reached the batch size upload to S3
-            if len(data_to_be_upload) >= buffer_size:
-                put_records(data_to_be_upload, stream, bucket_name)
-                data_to_be_upload = []
+            offload_buffers(data_to_be_upload, buffer_size, bucket_name)
+
             yield raw_data
         except StopIteration:
             # if StopIteration is raised, break from loop: https://www.programiz.com/python-programming/iterator
             # flush remaining lines to S3
-            if len(data_to_be_upload) > 0:
-                put_records(data_to_be_upload, stream, bucket_name)
-                data_to_be_upload = []
+            offload_buffers(data_to_be_upload, 0, bucket_name)
             break
 
 def main():

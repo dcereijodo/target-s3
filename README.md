@@ -33,8 +33,8 @@ To install the `target-s3` utility as a system command, create and activate a
 Python3 virtual environment
 ```bash
 $ cd target-foobar
-$ python3 -m venv ~/.virtualenvs/target-foobar
-$ source ~/.virtualenvs/target-foobar/bin/activate
+$ python3 -m venv ~/.virtualenvs/target-s3
+$ source ~/.virtualenvs/target-s3/bin/activate
 ```
 and install the package
 ```bash
