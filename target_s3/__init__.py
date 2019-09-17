@@ -93,7 +93,7 @@ def persist_lines(config, lines):
             stream = o['stream']
             # on a first version we simply want to be able to dump the raw message
             # data as is to the bucket
-            raw_data = json.dumps(o['record'])
+            raw_data = json.dumps(o['record'], ensure_ascii=False)
             # for the moment append the raw record to a list to be put in s3 in a
             # batch upload at the end
             if data_to_be_upload.get(stream) is None:
