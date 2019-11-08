@@ -28,6 +28,15 @@ in the bucket
 {"ke1": "val1", "key2": "val2"}
 ```
 
+# Overriding configuration
+The configurations in the file can be overriden with the command line parameter `--overrides`,
+which takes configuration overrides in a JSON string and applies them over the passed
+config file (if any). So
+```bash
+target-s3 -c config.conf --overrides '{"buffer_size": 1000}'
+```
+will override the `buffer_size` parameter for that particular execution.
+
 # Run
 To install the `target-s3` utility as a system command, create and activate a
 Python3 virtual environment

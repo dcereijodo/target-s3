@@ -112,7 +112,13 @@ def persist_lines(config, lines):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-c', '--config', help='Config file', default='config.json')
+    parser.add_argument('-c', '--config', help='Config file')
+    parser.add_argument('-o', '--overrides',
+                        type=json.loads,
+                        help='a JSON string with configuration overrides',
+                        required=False,
+                        default="{}"
+                        )
     args = parser.parse_args()
 
     if args.config:
@@ -120,6 +126,9 @@ def main():
             config = json.load(input)
     else:
         config = {}
+
+    # we override file config with command line provided config
+    config.update(args.overrides)
 
     # make sure provided bucket exists or is accesible
     s3_client.head_bucket(Bucket=config['bucket_name'])
